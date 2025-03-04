@@ -13,6 +13,11 @@ router.get('/signup', (req, res) => {
   res.sendFile(path.join(req.viewsPath, "signup.html"));
 });
 
+// Features route
+router.get('/features', (req, res) => {
+  res.sendFile(path.join(req.viewsPath, "features.html"));
+});
+
 // Existing POST routes
 router.post('/signup', userctlr.signup);
 router.post('/login', userctlr.login);

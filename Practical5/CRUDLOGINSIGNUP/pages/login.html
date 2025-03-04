@@ -82,13 +82,33 @@
         .links a:hover {
             text-decoration: underline;
         }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <h1>Login</h1>
-        <form action="/login" method="POST">
+        <div id="alertBox" class="alert"></div>
+        <form id="loginForm" action="/login" method="POST">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" placeholder="Enter your username" required>
 
@@ -102,6 +122,48 @@
             <p><a href="/forgot-password">Forgot Password?</a></p>
         </div>
     </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                const alertBox = document.getElementById('alertBox');
+
+                alertBox.style.display = 'block';
+                if (data.success) {
+                    alertBox.className = 'alert alert-success';
+                    alertBox.textContent = data.message;
+                    // Redirect after showing success message
+                    setTimeout(() => {
+                        window.location.href = data.redirectUrl;
+                    }, 1500);
+                } else {
+                    alertBox.className = 'alert alert-danger';
+                    alertBox.textContent = data.message;
+                }
+            } catch (error) {
+                const alertBox = document.getElementById('alertBox');
+                alertBox.style.display = 'block';
+                alertBox.className = 'alert alert-danger';
+                alertBox.textContent = 'An error occurred. Please try again.';
+            }
+        });
+    </script>
 </body>
 
 </html>

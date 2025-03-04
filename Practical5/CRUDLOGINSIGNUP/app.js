@@ -71,26 +71,48 @@ app.post('/login', async (req, res) => {
 
         if (username == '' || password == '') {
             console.log('Email and password are required!');
-            return res.status(400).send('Email and password are required!');
+            return res.status(400).json({
+                success: false,
+                message: 'Email and password are required!'
+            });
         }
 
-        // Check if the user exists in the database
-        const checkuser = await user.findOne({ username: username });
+        // Check if the user exists in the database using either username or email
+        const checkuser = await user.findOne({
+            $or: [
+                { username: username },
+                { email: username }
+            ]
+        });
+
         if (checkuser) {
             // Verify the password
             if (checkuser.password === password) {
                 console.log('Login successful!');
-                res.sendFile(path.join(viewsPath, "index.html"));
+                res.status(200).json({
+                    success: true,
+                    message: 'Login successful!',
+                    redirectUrl: '/'
+                });
             } else {
                 console.log('Incorrect password!');
-                res.status(401).send('Incorrect password!');
+                res.status(401).json({
+                    success: false,
+                    message: 'Invalid credentials! Please check your password.'
+                });
             }
         } else {
             console.log('User does not exist!');
-            res.status(404).send('User does not exist!');
+            res.status(404).json({
+                success: false,
+                message: 'User does not exist! Please check your email/username.'
+            });
         }
     } catch (err) {
         console.error(err);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({
+            success: false,
+            message: 'Internal Server Error'
+        });
     }
 });
